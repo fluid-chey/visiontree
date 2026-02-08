@@ -29,9 +29,9 @@
 /* Expand arrow button - minimal floating style matching transcribe panel */
 .server-activity-expand-arrow {
     position: absolute;
-    top: -20px;
+    top: -16px;
     left: 8px;
-    padding: 4px;
+    padding: 2px 4px;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -41,6 +41,15 @@
     color: var(--muted-foreground);
     transition: color 0.15s ease;
     z-index: 1001;
+}
+
+/* Hide expand arrow in VS Code iframe mode — the expanded panel gets clipped by the iframe boundary */
+.vscode-mode .server-activity-expand-arrow {
+    display: none;
+}
+/* In VS Code mode, keep the panel compact and prevent overflow clipping issues */
+.vscode-mode .server-activity-panel {
+    overflow: hidden;
 }
 
 .server-activity-expand-arrow:hover {

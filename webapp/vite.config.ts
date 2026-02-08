@@ -45,6 +45,10 @@ export default defineConfig({
       '@material/mwc-icon/mwc-icon-host.css': path.resolve(__dirname, 'src/utils/empty-css-export.ts')
     },
   },
+  define: {
+    // Ensure Buffer is available globally for libraries like gray-matter that depend on it
+    'global': 'globalThis',
+  },
   optimizeDeps: {
     // Exclude ninja-keys from pre-bundling so our virtual module plugin can handle the CSS import
     exclude: ['ninja-keys']

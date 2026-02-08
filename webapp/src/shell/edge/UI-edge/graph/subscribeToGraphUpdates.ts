@@ -36,7 +36,10 @@ export function subscribeToGraphUpdates(
     const electronAPI: ElectronAPI | undefined = window.electronAPI;
 
     if (!electronAPI?.graph?.onGraphUpdate) {
-        console.error('[subscribeToGraphUpdates] electronAPI not available, skipping graph subscription');
+        console.warn('[subscribeToGraphUpdates] electronAPI not available, skipping graph subscription');
+        // Clear loading state so the UI doesn't get stuck on "Loading..." (e.g. VS Code webview mode)
+        setLoadingState(false);
+        setEmptyStateVisible(true);
         return null;
     }
 

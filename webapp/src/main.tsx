@@ -1,4 +1,13 @@
 /// <reference types="vite/client" />
+// Buffer polyfill — gray-matter uses Buffer internally, must be available before any parsing
+import { Buffer } from 'buffer';
+if (typeof globalThis.Buffer === 'undefined') {
+    (globalThis as Record<string, unknown>).Buffer = Buffer;
+}
+// VS Code mode shim — MUST be first import so window.electronAPI is set before anything else
+import { installVscodeElectronShim } from '@/shell/vscode-electron-shim'
+installVscodeElectronShim();
+
 // import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

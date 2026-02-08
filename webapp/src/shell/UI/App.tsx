@@ -12,10 +12,45 @@ import type { SavedProject } from "@/pure/project/types";
 
 type AppView = 'project-selection' | 'graph-view';
 
+/**
+ * Detect VS Code extension mode via URL parameter.
+ * When ?vscodePath=/some/path is set, skip project selection and go straight to graph view.
+ */
+function getVscodeProjectPath(): string | null {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('vscodePath');
+    } catch {
+        return null;
+    }
+}
+
 function App(): JSX.Element {
-    // App navigation state
-    const [currentView, setCurrentView] = useState<AppView>('project-selection');
-    const [currentProject, setCurrentProject] = useState<SavedProject | null>(null);
+    // Check for VS Code mode — if present, skip project selection entirely
+    const vscodeProjectPath = getVscodeProjectPath();
+    const isVscodeMode = vscodeProjectPath !== null;
+
+    // Add vscode-mode class to document for CSS-level overrides (iframe clipping, etc.)
+    useEffect(() => {
+        if (isVscodeMode) {
+            document.documentElement.classList.add('vscode-mode');
+        }
+        return () => {
+            document.documentElement.classList.remove('vscode-mode');
+        };
+    }, [isVscodeMode]);
+
+    // App navigation state — start in graph-view if in VS Code mode
+    const [currentView, setCurrentView] = useState<AppView>(isVscodeMode ? 'graph-view' : 'project-selection');
+    const [currentProject, setCurrentProject] = useState<SavedProject | null>(
+        isVscodeMode ? {
+            path: vscodeProjectPath,
+            name: vscodeProjectPath.split(/[/\\]/).pop() ?? 'Workspace',
+            type: 'folder',
+            voicetreeInitialized: true,
+            lastOpened: Date.now(),
+        } as SavedProject : null
+    );
 
     // Use the folder watcher hook for file watching
     const {
@@ -114,14 +149,16 @@ function App(): JSX.Element {
     // File Watching Control Panel Component - compact inline style matching activity panel
     const FileWatchingPanel: () => JSX.Element = () => (
         <div className="flex items-center gap-1 font-mono text-xs shrink-0">
-            {/* Back button */}
-            <button
-                onClick={() => void handleBackToProjects()}
-                className="text-muted-foreground px-1.5 py-1 rounded bg-muted hover:bg-accent transition-colors"
-                title="Back to project selection"
-            >
-                ←
-            </button>
+            {/* Back button - hidden in VS Code mode since project is fixed to workspace */}
+            {!isVscodeMode && (
+                <button
+                    onClick={() => void handleBackToProjects()}
+                    className="text-muted-foreground px-1.5 py-1 rounded bg-muted hover:bg-accent transition-colors"
+                    title="Back to project selection"
+                >
+                    ←
+                </button>
+            )}
             {watchDirectory && (
                 <>
                     <button
@@ -155,7 +192,7 @@ function App(): JSX.Element {
         console.trace('[App] VoiceTreeGraphView initialization stack trace'); // DEBUG: Track if called multiple times
 
         const graphView: VoiceTreeGraphView = new VoiceTreeGraphView(graphContainerRef.current, {
-            initialDarkMode: false
+            initialDarkMode: isVscodeMode ? true : false
         });
 
         // Cleanup on unmount or view change
@@ -174,7 +211,7 @@ function App(): JSX.Element {
     return (
         <div className="h-screen flex flex-col overflow-hidden bg-background">
             {/* Graph Section (fills all space, with bottom padding for fixed bottom bar) */}
-            <div className="flex-1 min-h-0 border-r pr-4 relative pb-14">
+            <div className={`flex-1 min-h-0 relative pb-14 ${isVscodeMode ? '' : 'border-r pr-4'}`}>
                 {/* Graph container */}
                 <div className="h-full w-full relative">
                     <div ref={graphContainerRef} className="h-full w-full"/>

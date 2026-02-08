@@ -246,6 +246,15 @@ class AskQueryRequest(BaseModel):
     top_k: int = 10
 
 
+class WriteNodeRequest(BaseModel):
+    file_path: str       # Absolute path to .md file
+    content: str         # Full markdown content to write
+
+
+class DeleteNodeRequest(BaseModel):
+    file_path: str       # Absolute path to .md file to delete
+
+
 # API endpoint
 @app.post("/send-text")
 async def send_text(request: TextRequest):
@@ -311,6 +320,37 @@ async def health_check():
     """Health check endpoint"""
     node_count = len(decision_tree.tree) if decision_tree else 0
     return {"status": "healthy", "nodes": node_count}
+
+
+@app.get("/files")
+async def list_files():
+    """Return all markdown files with their content from the loaded directory.
+    Used by the VS Code extension to populate the graph view."""
+    import os
+    if not markdown_dir:
+        return {"files": [], "directory": None}
+    
+    files = []
+    for root, _dirs, filenames in os.walk(markdown_dir):
+        for fname in sorted(filenames):
+            if fname.endswith('.md') or fname.endswith('.png') or fname.endswith('.jpg'):
+                full_path = os.path.join(root, fname)
+                # Normalize to forward slashes
+                normalized_path = full_path.replace('\\', '/')
+                try:
+                    if fname.endswith('.md'):
+                        with open(full_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                    else:
+                        content = ''  # Image files have empty content
+                    files.append({
+                        "path": normalized_path,
+                        "content": content,
+                    })
+                except Exception:
+                    pass
+    
+    return {"files": files, "directory": markdown_dir}
 
 
 @app.get("/buffer-status")
@@ -390,6 +430,59 @@ async def load_directory(request: LoadDirectoryRequest):
     except Exception as e:
         logger.error(f"Error loading directory: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error loading directory: {str(e)}")
+
+
+@app.post("/write-node")
+async def write_node(request: WriteNodeRequest):
+    """Write (create or update) a markdown node file.
+    Used by the VS Code extension to persist edits from the floating editor."""
+    import os
+    try:
+        file_path = request.file_path
+        if not file_path.endswith('.md'):
+            file_path += '.md'
+
+        # Ensure parent directory exists
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(request.content)
+
+        logger.info(f"Wrote node file: {file_path} ({len(request.content)} chars)")
+
+        # Trigger a reload so the decision tree picks up changes
+        global reload_next_processing_iteration
+        reload_next_processing_iteration = True
+
+        return {"status": "success", "file_path": file_path}
+    except Exception as e:
+        logger.error(f"Error writing node: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/delete-node")
+async def delete_node(request: DeleteNodeRequest):
+    """Delete a markdown node file.
+    Used by the VS Code extension for node deletion."""
+    import os
+    try:
+        file_path = request.file_path
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail=f"File not found: {file_path}")
+
+        os.remove(file_path)
+        logger.info(f"Deleted node file: {file_path}")
+
+        # Trigger a reload
+        global reload_next_processing_iteration
+        reload_next_processing_iteration = True
+
+        return {"status": "success", "file_path": file_path}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting node: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/ask")

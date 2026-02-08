@@ -200,6 +200,17 @@ export function useTranscriptionSender({
       dismissTranscriptionPreview();
     }
 
+    // Mark how many tokens to skip AFTER appendManualText adds its tokens.
+    // Manual text creates ~2 tokens (newline + text). Advance the count by a
+    // generous amount so the auto-subscription doesn't re-send the same text.
+    // We snapshot the current count; after appendManualText runs the store will
+    // have more tokens, but sendIncrementalTokens only fires when
+    // finalTokens.length > sentTokensCount.current, so we bump it past the
+    // expected new tokens.  Using +10 is safe because the auto-subscription
+    // naturally clamps to the actual token list length.
+    const currentFinalTokens: Token[] = getFinalTokens();
+    sentTokensCount.current = currentFinalTokens.length + 10;
+
     try {
       // Pass forceFlush=true for manual text submission (Enter key)
       // This bypasses the buffer threshold on the server

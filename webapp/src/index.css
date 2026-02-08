@@ -6,6 +6,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Suppress focus outlines on graph container and canvas (especially visible in VS Code webview iframe) */
+[tabindex]:focus, [tabindex]:focus-visible,
+canvas:focus, canvas:focus-visible {
+  outline: none;
+}
+
 :root {
   --voicetree: oklch(0.5 0.15 150);
   --radius: 0.625rem;

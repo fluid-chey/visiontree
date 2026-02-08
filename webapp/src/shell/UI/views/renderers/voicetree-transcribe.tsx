@@ -333,7 +333,7 @@ export default function VoiceTreeTranscribe(): JSX.Element {
               "flex items-center border border-input bg-background rounded-full overflow-hidden shadow-sm transition-all",
               inputMode !== null && "min-w-[320px]"
             )}>
-              {/* Add Button - COMMENTED OUT: confuses users, only ask mode now
+              {/* Add: paste or type text → same pipeline as voice (disseminate to graph) */}
               <button
                 onClick={() => setInputMode(inputMode === 'add' ? null : 'add')}
                 className={cn(
@@ -342,13 +342,13 @@ export default function VoiceTreeTranscribe(): JSX.Element {
                     ? 'bg-blue-600 text-white rounded-full'
                     : 'text-muted-foreground hover:bg-accent rounded-full'
                 )}
+                title="Paste or type text to add to the mind map (same as voice)"
               >
                 Add
               </button>
               <div className="h-4 w-px bg-border" />
-              */}
 
-              {/* Ask Button */}
+              {/* Ask: question → context node + terminal */}
               <button
                 onClick={() => setInputMode(inputMode === 'ask' ? null : 'ask')}
                 className={cn(
@@ -372,7 +372,7 @@ export default function VoiceTreeTranscribe(): JSX.Element {
                     onKeyPress={handleKeyPress}
                     placeholder={inputMode === 'ask'
                       ? "Query for relevant context"
-                      : "Add to graph"}
+                      : "Paste or type text to add to graph"}
                     className="flex-1 px-3 py-1.5 bg-transparent focus:outline-none text-sm min-w-[180px]"
                     disabled={isProcessing}
                     autoFocus

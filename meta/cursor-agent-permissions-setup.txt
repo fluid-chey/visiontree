@@ -1,0 +1,42 @@
+Cursor agent permissions – Voicetree
+=====================================
+
+This project is set up so agents can work without getting stuck on permission prompts.
+
+What’s in the repo (version-controlled)
+----------------------------------------
+- .cursor/rules/agent-permissions.mdc   → Tells the agent it may act without asking.
+- .cursor/rules/terminal-and-tools.mdc   → Use terminal and tools freely.
+- AGENTS.md                              → Same instructions for any agent reading the repo.
+
+Optional: Cursor UI (one-time)
+-----------------------------
+To reduce or remove approval prompts in Cursor:
+
+1. Open Cursor Settings (Cmd+, or Ctrl+,).
+2. Go to: Cursor Settings → Agents → Auto-Run.
+3. Set Auto-Run Mode to one of:
+   - "Run in Sandbox" – commands run in a sandbox when possible (recommended).
+   - "Run Everything" – no approval prompts (maximum automation, higher risk).
+
+You can also enable:
+- Allow Git Writes Without Approval
+- Auto-Run Network Access (if the agent needs network in sandbox)
+
+Optional: Workspace settings (local only)
+-----------------------------------------
+.vscode/ is gitignored. To use workspace-specific Cursor settings on your machine:
+
+1. Create .vscode/settings.json in the repo root if it doesn’t exist.
+2. Add Cursor agent settings, e.g.:
+
+   "cursor.terminalSecurityLevel": "off"
+   "cursor.terminal.allowList": [ "uv", "uv run", "npm", "pytest", "git status", ... ]
+
+See Cursor docs: Agent → Terminal, Agent → Security.
+
+Summary
+-------
+- Rules + AGENTS.md: agent is instructed to proceed without asking (committed).
+- Cursor Auto-Run + allowlist: fewer or no UI approval dialogs (your choice).
+Together they keep agents from getting stuck on permission in this folder.

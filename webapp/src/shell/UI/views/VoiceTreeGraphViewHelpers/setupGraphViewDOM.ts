@@ -46,8 +46,9 @@ export function setupGraphViewDOM(config: GraphViewDOMConfig): GraphViewDOMEleme
     const {container, isDarkMode, speedDialCallbacks} = config;
 
     // Configure container
-    container.className = 'h-full w-full bg-background overflow-hidden relative';
+    container.className = 'h-full w-full bg-background overflow-hidden relative outline-none';
     container.setAttribute('tabindex', '0'); // Allow keyboard events
+    container.style.outline = 'none'; // Prevent browser focus ring (especially visible in VS Code webview)
 
     // Create title bar drag region for macOS
     container.appendChild(createTitleBarDragRegion());
