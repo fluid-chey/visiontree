@@ -41,6 +41,9 @@ import {
   requestMicrophonePermission,
   openMicrophoneSettings
 } from './microphone-permissions';
+import { writeScreenRecordingVideoToTemp } from './screen-recording/writeScreenRecordingVideoToTemp';
+import { createScreenRecordingContextNode } from './screen-recording/createScreenRecordingContextNode';
+import { extractMoreScreenshotsFromContextNode } from './screen-recording/extractMoreScreenshotsFromContextNode';
 import path from 'path';
 
 /**
@@ -162,4 +165,9 @@ export const mainAPI = {
   checkMicrophonePermission,
   requestMicrophonePermission,
   openMicrophoneSettings,
+
+  // Screen recording (temp video write + context node creation + extract more)
+  writeScreenRecordingVideoToTemp,
+  createScreenRecordingContextNode,
+  extractMoreScreenshotsFromContextNode,
 }

@@ -429,6 +429,29 @@ async def ask_query(request: AskQueryRequest):
     }
 
 
+class ScreenRecordingKeyPointsRequest(BaseModel):
+    """Request body for screen recording key-point extraction."""
+    transcript: str
+
+
+@app.post("/screen-recording/key-points")
+async def screen_recording_key_points(request: ScreenRecordingKeyPointsRequest):
+    """
+    Extract key moments from a timestamped transcript for screenshot placement.
+    Returns list of { timeSeconds, reason } for use with frame extraction.
+    """
+    try:
+        from backend.screen_recording.key_points import extract_key_points
+        points = extract_key_points(request.transcript)
+        return {"key_points": points}
+    except RuntimeError as e:
+        logger.warning("Key points extraction failed: %s", e)
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error("Key points extraction error: %s", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
     import sys

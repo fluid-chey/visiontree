@@ -26,6 +26,7 @@ import {sendMessageTool} from './sendMessageTool'
 import {closeAgentTool} from './closeAgentTool'
 import {readTerminalOutputTool} from './readTerminalOutputTool'
 import {searchNodesTool} from './searchNodesTool'
+import {extractMoreScreenshotsTool} from './extractMoreScreenshotsTool'
 
 // Re-export types and tool functions for external use
 export type {McpToolResponse} from './types'
@@ -45,6 +46,8 @@ export type {ReadTerminalOutputParams} from './readTerminalOutputTool'
 export {readTerminalOutputTool} from './readTerminalOutputTool'
 export type {SearchNodesParams} from './searchNodesTool'
 export {searchNodesTool} from './searchNodesTool'
+export type {ExtractMoreScreenshotsParams} from './extractMoreScreenshotsTool'
+export {extractMoreScreenshotsTool} from './extractMoreScreenshotsTool'
 
 const MCP_BASE_PORT: 3001 = 3001 as const
 let mcpPort: number = MCP_BASE_PORT
@@ -184,6 +187,19 @@ If you already have a node detailing the task, use nodeId. Otherwise, use task+p
             }
         },
         async ({query, top_k}) => searchNodesTool({query, top_k})
+    )
+
+    // Tool: extract_more_screenshots
+    server.registerTool(
+        'extract_more_screenshots',
+        {
+            title: 'Extract More Screenshots',
+            description: 'Extract additional screenshots from an existing screen recording context node. Use when the user asks to "extract more screenshots from this recording". Pass the path to the context .md file (e.g. $CONTEXT_NODE_PATH when your context is that recording). The source video must still be in temp (within 24h).',
+            inputSchema: {
+                context_node_path: z.string().describe('Absolute path to the screen recording context .md file (e.g. from $CONTEXT_NODE_PATH)')
+            }
+        },
+        async ({context_node_path}) => extractMoreScreenshotsTool({context_node_path})
     )
 
     return server

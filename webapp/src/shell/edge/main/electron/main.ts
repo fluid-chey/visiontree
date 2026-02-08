@@ -22,6 +22,7 @@ import {writeAllPositionsSync} from '@/shell/edge/main/graph/writeAllPositionsOn
 import {getGraph} from '@/shell/edge/main/state/graph-store';
 import {startMcpServer} from '@/shell/edge/main/mcp-server/mcp-server';
 import {cleanupOrphanedContextNodes} from '@/shell/edge/main/saveNodePositions';
+import {cleanupOldScreenRecordingVideos} from '@/shell/edge/main/screen-recording/cleanupOldScreenRecordingVideos';
 import {setOnFolderSwitchCleanup, setStartupFolderOverride} from "@/shell/edge/main/state/watch-folder-store";
 // Conditionally load trackpad detection (macOS only, optional dependency)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -394,6 +395,9 @@ void app.whenReady().then(async () => {
 
     // Inject backend port into mainAPI
     setBackendPort(textToTreeServerPort);
+
+    // Remove screen recording temp videos older than 24h
+    cleanupOldScreenRecordingVideos();
 
     console.time('[Startup] createWindow');
     createWindow();

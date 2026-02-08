@@ -83,6 +83,7 @@ Highest priority task: `,
     INJECT_ENV_VARS: {
         AGENT_PROMPT: `First read and analyze the context of your task, which is stored at $CONTEXT_NODE_PATH
 You are being run within a graph of Markdown files that represents your project context. These markdown files are stored within $ALL_MARKDOWN_READ_PATHS
+Context may include image paths (e.g. screenshots) relative to the context file; if your tool supports vision, you may use those paths as image inputs.
 <HANDLING_AMBIGUITY>
 If your task has non-trivial ambiguity, stop and ask the user for clarifications. For each clarifying question include your current working assumption. Otherwise, if the task is clear, continue working on it, or developing your task plan until ambiguity does arise.
 </HANDLING_AMBIGUITY>

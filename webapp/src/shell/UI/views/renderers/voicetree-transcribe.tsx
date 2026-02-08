@@ -13,6 +13,7 @@ import type {} from "@/shell/electron";
 import { ChevronDown } from "lucide-react";
 import { initVoiceRecording, disposeVoiceRecording } from "@/shell/edge/UI-edge/state/VoiceRecordingController";
 import { SseStatusPanel } from "@/shell/UI/sse-status-panel";
+import ScreenRecordingControls from "@/shell/UI/views/components/ScreenRecordingControls";
 
 type InputMode = 'add' | 'ask' | null;
 
@@ -327,6 +328,9 @@ export default function VoiceTreeTranscribe(): JSX.Element {
 
             {/* Divider */}
             <div className="h-6 w-px bg-border" />
+
+            {/* Screen recording: Record tab / Record screen / Stop & save */}
+            <ScreenRecordingControls />
 
             {/* Input Pill - Unified rounded container that expands */}
             <div className={cn(

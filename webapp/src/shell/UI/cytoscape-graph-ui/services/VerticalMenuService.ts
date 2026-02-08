@@ -184,6 +184,25 @@ export class VerticalMenuService {
             },
         });
 
+        // Extract more screenshots: only when exactly one node selected and it's a screen-recording context node
+        const isScreenRecordingNode = (nodeId: string): boolean =>
+            nodeId.includes('recordings/') && nodeId.endsWith('.md') && nodeId.includes('screen_recording_');
+        if (selectedCount === 1) {
+            const selectedId: string = this.cy!.$(':selected').nodes().map((n) => n.id())[0] ?? '';
+            if (isScreenRecordingNode(selectedId)) {
+                menuItems.push({
+                    text: 'Extract more screenshots',
+                    action: async () => {
+                        try {
+                            await window.electronAPI?.main.extractMoreScreenshotsFromContextNode(selectedId);
+                        } catch (err) {
+                            console.error('[VerticalMenuService] Extract more screenshots failed:', err);
+                        }
+                    },
+                });
+            }
+        }
+
         return menuItems;
     }
 
